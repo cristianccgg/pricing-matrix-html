@@ -535,6 +535,25 @@ function renderTable() {
   const tableBody = document.getElementById("pricingTableBody");
   tableBody.innerHTML = "";
 
+  // Añadir manejador de eventos global para tooltips
+  document.addEventListener("click", function (e) {
+    // Cerrar todos los tooltips activos
+    document
+      .querySelectorAll('.tooltip[data-active="true"]')
+      .forEach((tooltip) => {
+        if (!tooltip.contains(e.target)) {
+          tooltip.removeAttribute("data-active");
+        }
+      });
+
+    // Si el click fue en un tooltip, togglear su estado
+    if (e.target.closest(".tooltip")) {
+      const tooltip = e.target.closest(".tooltip");
+      const wasActive = tooltip.getAttribute("data-active") === "true";
+      tooltip.setAttribute("data-active", !wasActive);
+    }
+  });
+
   Object.entries(sections).forEach(([sectionKey, section], index) => {
     // Main section row
     const mainRow = document.createElement("tr");

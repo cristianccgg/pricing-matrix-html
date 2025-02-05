@@ -89,6 +89,8 @@
         .tooltip {
           z-index: 20 !important; /* Asegurar que el contenedor del tooltip esté por encima */
           position: relative;
+          cursor: pointer;
+          -webkit-tap-highlight-color: transparent; /* Eliminar highlight al tocar */
         }
 
         .tooltip .tooltiptext {
@@ -109,12 +111,19 @@
         }
 
         /* Mostrar tooltip al tocar en dispositivos móviles */
-        .tooltip:active .tooltiptext,
-        .tooltip:focus .tooltiptext {
+        .tooltip:focus .tooltiptext,
+        .tooltip:focus-within .tooltiptext,
+        .tooltip[data-active="true"] .tooltiptext {
           visibility: visible;
           opacity: 1;
           transform: translateX(-50%) translateY(0);
           z-index: 101 !important;
+        }
+
+        /* Eliminar los estilos :active anteriores */
+        .tooltip:active .tooltiptext {
+          visibility: visible;
+          opacity: 1;
         }
       }
 
