@@ -270,8 +270,47 @@ const sections = {
   },
 };
 
-function renderMainRowValue(value) {
+function addInfoIcon(container) {
+  const infoIcon = document.getElementById("infoIcon").content.cloneNode(true);
+  container.appendChild(infoIcon);
+}
+
+function renderMainRowValue(value, sectionKey, columnIndex) {
   if (value === "Yes") {
+    // Caso especial para Virtual Tax Manager en la columna Core
+    if (sectionKey === "virtualTaxManager" && columnIndex === 1) {
+      const container = document.createElement("div");
+      container.className = "tooltip";
+
+      const iconContainer = document
+        .getElementById("checkIcon")
+        .content.cloneNode(true);
+      const checkDiv = iconContainer.querySelector("div");
+      checkDiv.classList.add(
+        "transform",
+        "transition-transform",
+        "hover:scale-110"
+      );
+
+      const tooltip = document.createElement("span");
+      tooltip.className = "tooltiptext text-left whitespace-pre-line";
+      tooltip.innerHTML = `GrowthLab Tax Team will do a year-end review that will consist of:
+
+Business Review
+
+Review of Financial Statements with Customer
+
+If needed, compute projections
+- Discussion of Estimated Tax Payment
+- Potential year end planning to reduce potential Exposure
+- Nexus discussion (if applicable, if nexus study is required separate charge)
+- Meeting with client prior to Dec 15th.`;
+
+      container.appendChild(checkDiv);
+      container.appendChild(tooltip);
+      return container;
+    }
+    // Comportamiento normal para otros "Yes"
     const template = document.getElementById("checkIcon");
     const clone = template.content.cloneNode(true);
     const container = clone.querySelector("div");
@@ -282,6 +321,37 @@ function renderMainRowValue(value) {
     );
     return clone;
   } else if (value === "No") {
+    if (sectionKey === "taxFilings") {
+      // Solo para la fila "Tax Filings"
+      if (columnIndex === 0 || columnIndex === 1) {
+        // Modificado para incluir ambas columnas
+        const container = document.createElement("div");
+        container.className = "tooltip flex items-center justify-center";
+
+        const span = createTextElement(
+          value,
+          "span",
+          "text-gray-500 font-medium text-sm md:text-base lg:text-lg transition hover:text-gray-700"
+        );
+
+        const tooltip = document.createElement("span");
+        tooltip.className = "tooltiptext"; // Aseguramos que siempre tenga la clase
+
+        // Contenido específico según la columna
+        if (columnIndex === 0) {
+          tooltip.innerHTML =
+            "$1,500 - $2,000<br>1 Federal Filing & 1 State Filing";
+        } else if (columnIndex === 1) {
+          tooltip.innerHTML =
+            "$2,000 - $3,000<br>1 Federal Filing & < 5 State Filings";
+        }
+
+        container.appendChild(span);
+        container.appendChild(tooltip);
+        addInfoIcon(container);
+        return container;
+      }
+    }
     return createTextElement(
       value,
       "span",
@@ -303,7 +373,8 @@ function renderMainRowValue(value) {
   );
 }
 
-function renderValue(value) {
+function renderValue(value, sectionKey, featureKey, columnIndex) {
+  // Añadimos parámetros
   if (value === "x") {
     const template = document.getElementById("xIcon");
     const clone = template.content.cloneNode(true);
@@ -330,6 +401,53 @@ function renderValue(value) {
       "span",
       "text-gray-300 text-sm md:text-base lg:text-lg"
     );
+  } else if (
+    sectionKey === "virtualTaxManager" &&
+    featureKey === "nexus" &&
+    columnIndex === 1 &&
+    value === "If Needed*"
+  ) {
+    const container = document.createElement("div");
+    container.className = "tooltip";
+
+    const span = createTextElement(
+      value,
+      "span",
+      "text-sm md:text-base lg:text-lg transition hover:text-primary"
+    );
+
+    const tooltip = document.createElement("span");
+    tooltip.className = "tooltiptext";
+    tooltip.textContent =
+      "Will be engaged and invoiced aside from recurring services.";
+
+    container.appendChild(span);
+    container.appendChild(tooltip);
+    return container;
+  } else if (
+    sectionKey === "virtualTaxManager" &&
+    featureKey === "salesTax" &&
+    (columnIndex === 2 || columnIndex === 3) && // Modificamos para incluir columna Pro y Enterprise
+    value === "<5 States Included"
+  ) {
+    const container = document.createElement("div");
+    container.className = "tooltip flex items-center justify-center";
+
+    const span = createTextElement(
+      value,
+      "span",
+      "text-sm md:text-base lg:text-lg transition hover:text-primary"
+    );
+
+    const tooltip = document.createElement("span");
+    tooltip.className = "tooltiptext";
+    tooltip.textContent =
+      "Anything over 4 or 5, we will help manage the relationship with Avalara";
+
+    container.appendChild(span);
+    container.appendChild(tooltip);
+    addInfoIcon(container);
+    return container;
   }
   return createTextElement(
     value,
@@ -405,7 +523,8 @@ function renderTable() {
     mainRow.appendChild(nameCell);
 
     // Main row values
-    section.mainRow.forEach((value) => {
+    section.mainRow.forEach((value, columnIndex) => {
+      // Añadimos columnIndex
       const cell = document.createElement("td");
       cell.className = "p-6 text-center mobile-col";
 
@@ -413,7 +532,7 @@ function renderTable() {
       valueSpan.className = ["rightForYou", "costRange"].includes(sectionKey)
         ? "font-semibold text-gray-800"
         : "";
-      valueSpan.appendChild(renderMainRowValue(value));
+      valueSpan.appendChild(renderMainRowValue(value, sectionKey, columnIndex)); // Pasamos columnIndex
       cell.appendChild(valueSpan);
       mainRow.appendChild(cell);
     });
@@ -436,16 +555,38 @@ function renderTable() {
           }
 
           const nameCell = document.createElement("td");
-          nameCell.className = nameCell.className =
+          nameCell.className =
             "p-4 pl-8 text-sm md:text-base lg:text-lg text-gray-600 sticky-col text-left bg-secondary-light";
-          nameCell.textContent = feature.name;
+
+          // Agregar tooltip específico para "Estimated Tax Filing Cost"
+          if (sectionKey === "costRange" && featureKey === "taxFiling") {
+            const container = document.createElement("div");
+            container.className = "tooltip flex items-center";
+
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = feature.name;
+
+            const tooltip = document.createElement("span");
+            tooltip.className = "tooltiptext";
+            tooltip.innerHTML = "*Estimated<br>*will be engaged separately";
+
+            container.appendChild(nameSpan);
+            container.appendChild(tooltip);
+            addInfoIcon(container);
+            nameCell.appendChild(container);
+          } else {
+            nameCell.textContent = feature.name;
+          }
+
           featureRow.appendChild(nameCell);
 
-          feature.values.forEach((value) => {
+          feature.values.forEach((value, columnIndex) => {
             const valueCell = document.createElement("td");
             valueCell.className =
               "p-4 text-center text-sm md:text-base lg:text-lg mobile-col";
-            valueCell.appendChild(renderValue(value));
+            valueCell.appendChild(
+              renderValue(value, sectionKey, featureKey, columnIndex)
+            );
             featureRow.appendChild(valueCell);
           });
 
