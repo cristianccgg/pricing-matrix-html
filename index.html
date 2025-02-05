@@ -107,6 +107,15 @@
           height: 12px !important;
           z-index: 0 !important;
         }
+
+        /* Mostrar tooltip al tocar en dispositivos móviles */
+        .tooltip:active .tooltiptext,
+        .tooltip:focus .tooltiptext {
+          visibility: visible;
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+          z-index: 101 !important;
+        }
       }
 
       @media (min-width: 769px) {
@@ -151,7 +160,7 @@
         line-height: 1.4; /* Mejorar espaciado entre líneas */
         text-align: left; /* Alinear texto a la izquierda */
         padding: 12px 16px; /* Aumentar el padding */
-        background-color: #333;
+        background-color: #333 !important;
         color: white;
         text-align: center;
         border-radius: 6px;
