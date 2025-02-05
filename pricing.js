@@ -270,9 +270,15 @@ const sections = {
   },
 };
 
-function addInfoIcon(container) {
+// Mejoras en renderizado y accesibilidad
+function addInfoIcon(container, tooltipText) {
   const infoIcon = document.getElementById("infoIcon").content.cloneNode(true);
-  container.appendChild(infoIcon);
+  const iconWrapper = document.createElement("span"); // Cambiar a span
+  iconWrapper.className = "info-wrapper"; // Simplificar clase
+  iconWrapper.setAttribute("aria-label", tooltipText);
+  iconWrapper.setAttribute("role", "tooltip");
+  iconWrapper.appendChild(infoIcon);
+  container.appendChild(iconWrapper);
 }
 
 function renderMainRowValue(value, sectionKey, columnIndex) {
@@ -431,7 +437,8 @@ function renderValue(value, sectionKey, featureKey, columnIndex) {
     value === "<5 States Included"
   ) {
     const container = document.createElement("div");
-    container.className = "tooltip flex items-center justify-center";
+    container.className =
+      "tooltip inline-flex items-center justify-center gap-2"; // Actualizar clases
 
     const span = createTextElement(
       value,
@@ -470,7 +477,42 @@ function hasFeatures(section) {
 function toggleSection(sectionKey) {
   state.animatingSection = sectionKey;
   state.openSections[sectionKey] = !state.openSections[sectionKey];
+
+  // Actualizar aria-expanded
+  const button = document.querySelector(`[data-section="${sectionKey}"]`);
+  if (button) {
+    button.setAttribute("aria-expanded", state.openSections[sectionKey]);
+  }
+
+  debouncedRenderTable();
+}
+
+// Debouncing para optimizar renders
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+const debouncedRenderTable = debounce(() => {
   renderTable();
+}, 150);
+
+// Añadir esta función antes de renderTable
+function createSectionButton(section, sectionKey) {
+  const button = document.createElement("button");
+  button.className =
+    "w-full flex justify-between items-center p-4 hover:bg-secondary-light/50 transition-all rounded-lg";
+  button.setAttribute("data-section", sectionKey);
+  button.setAttribute("aria-expanded", state.openSections[sectionKey]);
+  button.setAttribute("aria-controls", `section-${sectionKey}`);
+  return button;
 }
 
 function renderTable() {
@@ -490,9 +532,7 @@ function renderTable() {
     nameCell.onclick = () => toggleSection(sectionKey);
 
     if (hasFeatures(section)) {
-      const button = document.createElement("button");
-      button.className =
-        "w-full flex justify-between items-center p-4 hover:bg-secondary-light/50 transition-all rounded-lg";
+      const button = createSectionButton(section, sectionKey);
       button.onclick = (e) => {
         e.stopPropagation();
         toggleSection(sectionKey);
