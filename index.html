@@ -22,6 +22,9 @@
             fontFamily: {
               montserrat: ["Montserrat", "sans-serif"],
             },
+            zIndex: {
+              "-1": "-1",
+            },
           },
         },
       };
@@ -30,11 +33,7 @@
     <style>
       body {
         font-family: "Montserrat", sans-serif;
-        background: linear-gradient(
-          to bottom right,
-          #f9fafb,
-          rgba(213, 241, 247, 0.2)
-        );
+
         min-height: 100vh;
       }
 
@@ -43,11 +42,7 @@
       .sticky-col {
         position: sticky;
         left: 0;
-        background: rgb(
-          248,
-          252,
-          245
-        ) !important; /* Color sólido en lugar de rgba */
+        background-color: #f6fff5;
       }
 
       .sticky-col:hover {
@@ -71,26 +66,13 @@
         .table-container {
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
-          background: linear-gradient(
-              to right,
-              white 30%,
-              rgba(255, 255, 255, 0)
-            ),
-            linear-gradient(to left, white 30%, rgba(255, 255, 255, 0)) 100% 0;
-          background-repeat: no-repeat;
-          background-color: white;
-          background-size: 40px 100%;
-          background-attachment: local;
         }
 
         .sticky-col {
-          box-shadow: 2px 0 8px -2px rgba(0, 0, 0, 0.15) !important;
-          background: rgb(
-            248,
-            252,
-            245
-          ) !important; /* Mantener el color pero sólido */
-          width: 100px !important;
+          position: sticky;
+          left: 0;
+          background-color: #f6fff5;
+          z-index: 50 !important;
         }
 
         .mobile-col {
@@ -103,35 +85,27 @@
           background-color: rgba(64, 123, 157, 0.05);
         }
 
-        .table-container::after {
-          content: "";
-          position: absolute;
-          right: 0;
-          top: 0;
-          bottom: 0;
-          width: 30px;
-          background: linear-gradient(
-            to left,
-            rgba(255, 255, 255, 0.9),
-            transparent
-          );
-          pointer-events: none;
-          opacity: 0.8;
+        /* Ajustes para tooltips en mobile */
+        .tooltip {
+          z-index: 20 !important; /* Asegurar que el contenedor del tooltip esté por encima */
+          position: relative;
         }
 
-        /* Ajustes para tooltips en mobile */
         .tooltip .tooltiptext {
-          max-width: 280px; /* Reducir ancho máximo en mobile */
-          font-size: 0.5rem !important; /* Reducir tamaño de fuente */
-          padding: 8px 10px; /* Reducir padding */
-          line-height: 1.3; /* Ajustar espaciado entre líneas */
-          bottom: calc(100% + 8px); /* Reducir distancia desde el elemento */
+          min-height: 70px;
+          max-width: 100px !important; /* Reducir ancho máximo en mobile */
+          font-size: 0.6rem !important; /* Reducir tamaño de fuente */
+          padding: 8px 10px !important; /* Reducir padding */
+          line-height: 1.3 !important; /* Ajustar espaciado entre líneas */
+          bottom: calc(100% + 8px) !important;
+          z-index: 0 !important; /* El tooltip en sí estará por encima de todo */
         }
 
         /* Hacer el icono de info un poco más pequeño en mobile */
         .tooltip i[data-lucide="info"] {
-          width: 12px;
-          height: 12px;
+          width: 12px !important;
+          height: 12px !important;
+          z-index: 0 !important;
         }
       }
 
@@ -157,7 +131,7 @@
       }
 
       .feature-row {
-        animation: fadeIn 0.3s ease-out;
+        animation: fadeIn 0.3s ease-out !important;
       }
 
       /* Estilos para tooltip */
@@ -183,7 +157,7 @@
         border-radius: 6px;
         padding: 8px 12px;
         position: absolute;
-        z-index: 9999;
+        z-index: 101 !important;
         bottom: calc(100% + 10px); /* Aumentar distancia desde el elemento */
         left: 50%;
         transform: translateX(-50%) translateY(5px);
@@ -203,12 +177,14 @@
         border-width: 5px;
         border-style: solid;
         border-color: #333 transparent transparent transparent;
+        z-index: 2 !important;
       }
 
       .tooltip:hover .tooltiptext {
         visibility: visible;
         opacity: 1;
         transform: translateX(-50%) translateY(0);
+        z-index: 101 !important;
       }
 
       /* Ajustar posición del icono info */

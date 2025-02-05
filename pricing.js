@@ -314,6 +314,7 @@ If needed, compute projections
 
       container.appendChild(checkDiv);
       container.appendChild(tooltip);
+      addInfoIcon(container); // Añadir icono de información
       return container;
     }
     // Comportamiento normal para otros "Yes"
@@ -400,12 +401,25 @@ function renderValue(value, sectionKey, featureKey, columnIndex) {
       "transition-transform",
       "hover:scale-125"
     );
+    // Añadir icono de información si hay tooltip
+    if (
+      (sectionKey === "virtualTaxManager" &&
+        featureKey === "nexus" &&
+        columnIndex === 1 &&
+        value === "If Needed*") ||
+      (sectionKey === "virtualTaxManager" &&
+        featureKey === "salesTax" &&
+        (columnIndex === 2 || columnIndex === 3) &&
+        value === "<5 States Included")
+    ) {
+      addInfoIcon(container);
+    }
     return clone;
   } else if (value === "") {
     return createTextElement(
       "-",
       "span",
-      "text-gray-300 text-sm md:text-base lg:text-lg"
+      "text-gray-300 text-sm md:text-base lg:text-lg "
     );
   } else if (
     sectionKey === "virtualTaxManager" &&
@@ -437,8 +451,10 @@ function renderValue(value, sectionKey, featureKey, columnIndex) {
     value === "<5 States Included"
   ) {
     const container = document.createElement("div");
+    // Añadir data-tooltip para identificar tooltips en mobile
     container.className =
-      "tooltip inline-flex items-center justify-center gap-2"; // Actualizar clases
+      "tooltip inline-flex items-center justify-center gap-2";
+    container.setAttribute("data-tooltip", "true");
 
     const span = createTextElement(
       value,
@@ -566,7 +582,7 @@ function renderTable() {
     section.mainRow.forEach((value, columnIndex) => {
       // Añadimos columnIndex
       const cell = document.createElement("td");
-      cell.className = "p-6 text-center mobile-col";
+      cell.className = "p-6  text-center mobile-col";
 
       const valueSpan = document.createElement("span");
       valueSpan.className = ["rightForYou", "costRange"].includes(sectionKey)
