@@ -37,6 +37,10 @@
         min-height: 100vh;
       }
 
+      .tax-filing-row td {
+        padding-top: 5rem !important;
+        padding-bottom: 5rem !important;
+      }
       /* Estos estilos son necesarios para la funcionalidad de la tabla y no se pueden lograr fácilmente con Tailwind */
 
       .sticky-col {
@@ -66,6 +70,7 @@
         .table-container {
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
+          /* Eliminamos el margin-bottom que estaba aquí */
         }
 
         .sticky-col {
@@ -125,6 +130,19 @@
           visibility: visible;
           opacity: 1;
         }
+
+        /* Estilo específico para el tooltip de Tax Filing en mobile */
+        .feature-row[data-feature="taxFiling"] .tooltip .tooltiptext {
+          font-size: 0.5rem !important; /* Reducir aún más el tamaño de fuente solo para este tooltip */
+          padding: 6px 8px !important; /* Reducir el padding para que quede más compacto */
+          min-width: 80px !important; /* Reducir el ancho mínimo */
+          line-height: 1.2 !important; /* Reducir el espaciado entre líneas */
+        }
+
+        /* Añadir margen inferior al contenedor principal en mobile */
+        .bg-white.rounded-xl {
+          margin-bottom: 5rem !important;
+        }
       }
 
       @media (min-width: 769px) {
@@ -136,7 +154,7 @@
         }
       }
 
-      /* Animaciones necesarias */
+      /* Simplificar las animaciones */
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -149,7 +167,11 @@
       }
 
       .feature-row {
-        animation: fadeIn 0.3s ease-out !important;
+        opacity: 0;
+      }
+
+      .feature-row[style*="animation"] {
+        animation-fill-mode: forwards;
       }
 
       /* Estilos para tooltip */
@@ -219,6 +241,118 @@
         text-align: center;
         margin-right: 4px; /* Espacio consistente antes del icono */
       }
+
+      /* Modificar los estilos del contenedor de la tabla */
+      .table-container {
+        overflow: hidden; /* Cambiado de overflow-x: auto a overflow: hidden */
+        -webkit-overflow-scrolling: touch;
+        position: relative; /* Asegurar que los elementos internos se posicionen respecto a este contenedor */
+        border-radius: 0.75rem; /* 12px - mismo radio que el contenedor padre */
+      }
+
+      /* Añadir un contenedor interno con scroll horizontal */
+      .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Asegurar que los dropdowns permanezcan dentro del contenedor */
+      .feature-row .sticky-col {
+        overflow: hidden;
+      }
+
+      /* Ajustar el contenedor del dropdown */
+      .dropdown-content {
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+        transform-origin: top;
+      }
+
+      /* Estilo específico para el tooltip de Estimated Tax Filing Cost */
+      .feature-row[data-feature="taxFiling"] .tooltip .tooltiptext {
+        z-index: 1000 !important; /* Valor más alto que los contenedores padres */
+      }
+
+      /* Modificar el estilo específico para el tooltip de Estimated Tax Filing Cost */
+      .feature-row[data-feature="taxFiling"] .tooltip {
+        position: relative;
+        z-index: 1001 !important; /* Asegurarnos que el contenedor también tenga z-index alto */
+      }
+
+      .feature-row[data-feature="taxFiling"] .tooltip .tooltiptext {
+        z-index: 1002 !important;
+        transition: opacity 0.3s, visibility 0.3s, transform 0.2s;
+        pointer-events: none;
+      }
+
+      /* Asegurar que el tooltip permanezca visible durante y después de la animación */
+      .feature-row[data-feature="taxFiling"] {
+        position: relative;
+        z-index: 1000 !important;
+      }
+
+      /* Modificar la animación para mantener el z-index */
+      @keyframes fadeInWithZ {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .feature-row[data-feature="taxFiling"] {
+        animation: fadeInWithZ 0.3s ease-out !important;
+        animation-fill-mode: forwards !important;
+      }
+
+      /* Animación del dropdown */
+      .dropdown-content {
+        opacity: 0;
+        transform: scaleY(0);
+        transform-origin: top;
+        transition: all 0.2s ease-in-out;
+        pointer-events: none;
+      }
+
+      .dropdown-content.active {
+        opacity: 1;
+        transform: scaleY(1);
+        pointer-events: auto;
+      }
+
+      /* Animación para el ícono */
+      .dropdown-icon {
+        transition: transform 0.2s ease-in-out;
+      }
+
+      .dropdown-icon.active {
+        transform: rotate(180deg);
+      }
+
+      /* Animación del dropdown y filas */
+      .feature-row {
+        transform-origin: top;
+        transition: all 0.2s ease-in-out;
+        opacity: 0;
+        transform: scaleY(0);
+      }
+
+      .feature-row.active {
+        opacity: 1;
+        transform: scaleY(1);
+      }
+
+      /* Animación para el ícono del dropdown */
+      .dropdown-icon {
+        transition: transform 0.2s ease-in-out;
+      }
+
+      .dropdown-icon.active {
+        transform: rotate(180deg);
+      }
     </style>
   </head>
   <body class="p-4">
@@ -238,36 +372,38 @@
         class="bg-white rounded-xl shadow-xl shadow-primary border border-gray-200"
       >
         <div class="table-container">
-          <table class="w-full border-collapse min-w-[600px]">
-            <thead>
-              <tr>
-                <th class="px-6 py-6 text-left sticky-col">
-                  <div class="font-bold text-lg">Plans</div>
-                </th>
-                <th
-                  class="p-6 text-center font-bold text-lg mobile-col bg-secondary-light"
-                >
-                  Starter
-                </th>
-                <th
-                  class="p-6 text-center font-bold text-lg mobile-col bg-secondary-light"
-                >
-                  Core
-                </th>
-                <th
-                  class="p-6 text-center font-bold text-lg mobile-col bg-secondary-light"
-                >
-                  Pro
-                </th>
-                <th
-                  class="p-6 text-center font-bold text-lg mobile-col bg-secondary-light"
-                >
-                  Enterprise
-                </th>
-              </tr>
-            </thead>
-            <tbody id="pricingTableBody"></tbody>
-          </table>
+          <div class="table-scroll">
+            <table class="w-full border-collapse min-w-[600px]">
+              <thead>
+                <tr>
+                  <th class="px-6 py-6 text-left sticky-col">
+                    <div class="font-bold text-lg">Plans</div>
+                  </th>
+                  <th
+                    class="p-6 text-center font-bold text-lg mobile-col bg-secondary-light"
+                  >
+                    Starter
+                  </th>
+                  <th
+                    class="p-6 text-center font-bold text-lg mobile-col bg-secondary-light"
+                  >
+                    Core
+                  </th>
+                  <th
+                    class="p-6 text-center font-bold text-lg mobile-col bg-secondary-light"
+                  >
+                    Pro
+                  </th>
+                  <th
+                    class="p-6 text-center font-bold text-lg mobile-col bg-secondary-light"
+                  >
+                    Enterprise
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="pricingTableBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

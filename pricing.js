@@ -491,6 +491,11 @@ function hasFeatures(section) {
 }
 
 function toggleSection(sectionKey) {
+  // Si hay una sección animándose, esperar a que termine
+  if (state.animatingSection) {
+    return;
+  }
+
   state.animatingSection = sectionKey;
   state.openSections[sectionKey] = !state.openSections[sectionKey];
 
@@ -500,7 +505,12 @@ function toggleSection(sectionKey) {
     button.setAttribute("aria-expanded", state.openSections[sectionKey]);
   }
 
-  debouncedRenderTable();
+  renderTable();
+
+  // Limpiar animatingSection después de un tiempo
+  setTimeout(() => {
+    state.animatingSection = null;
+  }, Object.keys(sections[sectionKey].features || {}).length * 100 + 300);
 }
 
 // Debouncing para optimizar renders
@@ -528,7 +538,86 @@ function createSectionButton(section, sectionKey) {
   button.setAttribute("data-section", sectionKey);
   button.setAttribute("aria-expanded", state.openSections[sectionKey]);
   button.setAttribute("aria-controls", `section-${sectionKey}`);
+
+  const icon = document.createElement("i");
+  icon.className = `dropdown-icon ${
+    state.openSections[sectionKey] ? "active" : ""
+  }`;
+  icon.setAttribute(
+    "data-lucide",
+    state.openSections[sectionKey] ? "chevron-up" : "chevron-down"
+  );
+
   return button;
+}
+
+function renderFeatureRows(tableBody, sectionKey, section) {
+  if (state.openSections[sectionKey] && hasFeatures(section)) {
+    Object.entries(section.features).forEach(
+      ([featureKey, feature], featureIndex) => {
+        const featureRow = document.createElement("tr");
+
+        // Añadir clase especial si es la fila de taxFiling en costRange
+        const baseClasses = "feature-row border-t hover:bg-secondary-light/50";
+        featureRow.className =
+          sectionKey === "costRange" && featureKey === "taxFiling"
+            ? `${baseClasses} tax-filing-row`
+            : baseClasses;
+
+        // Aplicar animación solo si es la sección que se está abriendo actualmente
+        if (sectionKey === state.animatingSection) {
+          featureRow.style.animation = `fadeIn 0.3s ease-out ${
+            featureIndex * 0.1
+          }s forwards`;
+          featureRow.style.opacity = "0";
+        } else if (state.openSections[sectionKey]) {
+          // Si la sección ya estaba abierta, mantener visible
+          featureRow.style.opacity = "1";
+          featureRow.style.transform = "translateY(0)";
+        }
+
+        const nameCell = document.createElement("td");
+        nameCell.className =
+          "p-4 pl-8 text-sm md:text-base lg:text-lg text-gray-600 sticky-col text-left bg-secondary-light";
+
+        // Agregar tooltip específico para "Estimated Tax Filing Cost"
+        if (sectionKey === "costRange" && featureKey === "taxFiling") {
+          const container = document.createElement("div");
+          container.className = "tooltip flex items-center";
+          featureRow.setAttribute("data-feature", "taxFiling"); // Añadir este atributo
+
+          const nameSpan = document.createElement("span");
+          nameSpan.textContent = feature.name;
+
+          const tooltip = document.createElement("span");
+          tooltip.className = "tooltiptext";
+          tooltip.style.zIndex = "1002"; // Forzar z-index alto
+          tooltip.innerHTML = "*Estimated<br>*will be engaged separately";
+
+          container.appendChild(nameSpan);
+          container.appendChild(tooltip);
+          addInfoIcon(container);
+          nameCell.appendChild(container);
+        } else {
+          nameCell.textContent = feature.name;
+        }
+
+        featureRow.appendChild(nameCell);
+
+        feature.values.forEach((value, columnIndex) => {
+          const valueCell = document.createElement("td");
+          valueCell.className =
+            "p-4 text-center text-sm md:text-base lg:text-lg mobile-col";
+          valueCell.appendChild(
+            renderValue(value, sectionKey, featureKey, columnIndex)
+          );
+          featureRow.appendChild(valueCell);
+        });
+
+        tableBody.appendChild(featureRow);
+      }
+    );
+  }
 }
 
 function renderTable() {
@@ -615,60 +704,7 @@ function renderTable() {
     tableBody.appendChild(mainRow);
 
     // Feature rows
-    if (state.openSections[sectionKey] && hasFeatures(section)) {
-      Object.entries(section.features).forEach(
-        ([featureKey, feature], featureIndex) => {
-          const featureRow = document.createElement("tr");
-          featureRow.className =
-            "feature-row border-t hover:bg-secondary-light/50  ";
-
-          // Animation only for toggled section
-          if (sectionKey === state.animatingSection) {
-            featureRow.style.animation = `fadeIn 0.3s ease-out ${
-              featureIndex * 0.05
-            }s forwards`;
-          }
-
-          const nameCell = document.createElement("td");
-          nameCell.className =
-            "p-4 pl-8 text-sm md:text-base lg:text-lg text-gray-600 sticky-col text-left bg-secondary-light";
-
-          // Agregar tooltip específico para "Estimated Tax Filing Cost"
-          if (sectionKey === "costRange" && featureKey === "taxFiling") {
-            const container = document.createElement("div");
-            container.className = "tooltip flex items-center";
-
-            const nameSpan = document.createElement("span");
-            nameSpan.textContent = feature.name;
-
-            const tooltip = document.createElement("span");
-            tooltip.className = "tooltiptext";
-            tooltip.innerHTML = "*Estimated<br>*will be engaged separately";
-
-            container.appendChild(nameSpan);
-            container.appendChild(tooltip);
-            addInfoIcon(container);
-            nameCell.appendChild(container);
-          } else {
-            nameCell.textContent = feature.name;
-          }
-
-          featureRow.appendChild(nameCell);
-
-          feature.values.forEach((value, columnIndex) => {
-            const valueCell = document.createElement("td");
-            valueCell.className =
-              "p-4 text-center text-sm md:text-base lg:text-lg mobile-col";
-            valueCell.appendChild(
-              renderValue(value, sectionKey, featureKey, columnIndex)
-            );
-            featureRow.appendChild(valueCell);
-          });
-
-          tableBody.appendChild(featureRow);
-        }
-      );
-    }
+    renderFeatureRows(tableBody, sectionKey, section);
   });
 
   state.animatingSection = null;
