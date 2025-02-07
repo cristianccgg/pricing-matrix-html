@@ -311,7 +311,7 @@ function renderMainRowValue(value, sectionKey, columnIndex) {
         const span = createTextElement(
           value,
           "span",
-          "text-gray-500 font-medium text-sm md:text-base lg:text-lg transition hover:text-gray-700"
+          "text-gray-500 font-medium text-sm md:text-base lg:text-lg transition hover:text-gray-700 "
         );
 
         const tooltip = document.createElement("span");
@@ -623,6 +623,10 @@ function renderTable() {
   Object.entries(sections).forEach(([sectionKey, section], index) => {
     // Main section row - añadimos cursor-pointer aquí
     const mainRow = document.createElement("tr");
+
+    // Añadir el data-section attribute a la fila
+    mainRow.setAttribute("data-section", sectionKey);
+
     mainRow.className = `border-t hover:bg-secondary-light/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer ${
       sectionKey === "rightForYou" ? "border-t-2 border-primary/20" : ""
     }`;

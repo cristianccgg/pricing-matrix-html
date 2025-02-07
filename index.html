@@ -41,13 +41,14 @@
         padding-top: 5rem !important;
         padding-bottom: 5rem !important;
       }
+
       /* Estos estilos son necesarios para la funcionalidad de la tabla y no se pueden lograr fácilmente con Tailwind */
 
       .sticky-col {
         position: sticky;
         left: 0;
         background-color: #fcf1e1;
-        max-width: 350px;
+        max-width: 300px;
       }
 
       .sticky-col:hover {
@@ -67,21 +68,32 @@
         background: #f5fdff !important;
       }
 
+      /* Modificar las reglas base para Tax Filings (desktop) */
+      tr[data-section="taxFilings"] td {
+        background-color: white !important; /* Fondo blanco para todas las celdas */
+      }
+
+      tr[data-section="taxFilings"] .sticky-col {
+        background-color: #fcf1e1 !important; /* Solo la primera celda tiene fondo tan */
+      }
+
+      /* Hover para todas las celdas */
+      tr[data-section="taxFilings"]:hover td {
+        background-color: #f5fdff !important;
+      }
+
       @media (max-width: 768px) {
+        .sticky-col {
+          position: sticky;
+          z-index: 9999 !important;
+        }
         .table-container {
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
           /* Eliminamos el margin-bottom que estaba aquí */
         }
 
-        .sticky-col {
-          position: sticky;
-          left: 0;
-          z-index: 50 !important;
-        }
-
         .mobile-col {
-          min-width: 140px !important;
           transition: background-color 0.2s ease;
         }
 
@@ -130,20 +142,30 @@
           opacity: 1;
         }
 
-        /* Estilo específico para el tooltip de Tax Filing en mobile */
-
-        /* Añadir margen inferior al contenedor principal en mobile */
         .bg-white.rounded-xl {
           margin-bottom: 5rem !important;
         }
-      }
 
-      @media (min-width: 769px) {
-        .sticky-col {
-          min-width: 300px !important;
+        /* Reglas específicas para Tax Filings en mobile */
+        tr[data-section="taxFilings"] td {
+          background-color: inherit !important;
+          backdrop-filter: blur(8px);
         }
-        .mobile-col {
-          min-width: 170px !important; /* Asegurar ancho mínimo consistente */
+
+        tr[data-section="taxFilings"]:hover td {
+          background-color: #f5fdff !important;
+          opacity: 1 !important;
+          backdrop-filter: blur(8px);
+        }
+
+        tr[data-section="taxFilings"] .sticky-col {
+          background: #fcf1e1 !important;
+          opacity: 1 !important;
+        }
+
+        tr[data-section="taxFilings"] .sticky-col:hover {
+          background: #f5fdff !important;
+          opacity: 1 !important;
         }
       }
 
@@ -266,25 +288,6 @@
       .feature-row[data-feature="taxFiling"] .tooltip .tooltiptext {
         width: 180px;
         height: 70px;
-        z-index: 1000 !important; /* Valor más alto que los contenedores padres */
-      }
-
-      /* Modificar el estilo específico para el tooltip de Estimated Tax Filing Cost */
-      .feature-row[data-feature="taxFiling"] .tooltip {
-        position: relative !important;
-        z-index: 1001 !important; /* Asegurarnos que el contenedor también tenga z-index alto */
-      }
-
-      .feature-row[data-feature="taxFiling"] .tooltip .tooltiptext {
-        z-index: 1002 !important;
-        transition: opacity 0.3s, visibility 0.3s, transform 0.2s;
-        pointer-events: none;
-      }
-
-      /* Asegurar que el tooltip permanezca visible durante y después de la animación */
-      .feature-row[data-feature="taxFiling"] {
-        position: relative !important;
-        z-index: 1000 !important;
       }
 
       /* Modificar la animación para mantener el z-index */
@@ -297,11 +300,6 @@
           opacity: 1;
           transform: translateY(0);
         }
-      }
-
-      .feature-row[data-feature="taxFiling"] {
-        animation: fadeInWithZ 0.3s ease-out !important;
-        animation-fill-mode: forwards !important;
       }
 
       /* Animación del dropdown */
@@ -386,6 +384,34 @@
       /* Ajustar el z-index durante el hover para mantener la columna fija visible */
       tr:hover .sticky-col {
         z-index: 51 !important;
+      }
+
+      /* Añadir esta regla específica para Tax Filings */
+      tr[data-section="taxFilings"] .sticky-col:hover {
+        background-color: #f5fdff !important;
+        opacity: 10 !important;
+      }
+
+      /* Modificar estas reglas específicas */
+      /* Eliminar o modificar la regla que hace que todas las celdas cambien en hover */
+      tr:hover td,
+      .feature-row:hover td {
+        background-color: #f5fdff !important;
+      }
+
+      /* Regla específica para Tax Filings */
+      tr[data-section="taxFilings"] td {
+        background-color: inherit;
+      }
+
+      tr[data-section="taxFilings"]:hover td {
+        background-color: #f5fdff !important;
+        opacity: 1 !important;
+      }
+
+      /* Asegurar que la columna sticky mantenga su opacidad */
+      tr[data-section="taxFilings"] .sticky-col {
+        opacity: 1 !important;
       }
     </style>
   </head>
