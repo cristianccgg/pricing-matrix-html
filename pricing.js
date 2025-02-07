@@ -1,4 +1,3 @@
-// Mantenemos la misma estructura de datos
 const state = {
   openSections: {
     accounting: false,
@@ -12,7 +11,6 @@ const state = {
   animatingSection: null,
 };
 
-// Data structure se mantiene igual
 const sections = {
   accounting: {
     name: "Accounting",
@@ -173,12 +171,7 @@ const sections = {
   },
   hrPas: {
     name: "HR / People Advisory Services",
-    mainRow: [
-      "No",
-      "Yes", // Cambiado de "Essentials Compliance"
-      "Yes", // Cambiado de "Advanced Compliance"
-      "Yes", // Cambiado de "Advanced Compliance & Strategy"
-    ],
+    mainRow: ["No", "Yes", "Yes", "Yes"],
     features: {
       review: {
         name: "Review of Payroll Tax Accounts",
@@ -264,11 +257,10 @@ const sections = {
   },
 };
 
-// Mejoras en renderizado y accesibilidad
 function addInfoIcon(container, tooltipText) {
   const infoIcon = document.getElementById("infoIcon").content.cloneNode(true);
-  const iconWrapper = document.createElement("span"); // Cambiar a span
-  iconWrapper.className = "info-wrapper"; // Simplificar clase
+  const iconWrapper = document.createElement("span");
+  iconWrapper.className = "info-wrapper";
   iconWrapper.setAttribute("aria-label", tooltipText);
   iconWrapper.setAttribute("role", "tooltip");
   iconWrapper.appendChild(infoIcon);
@@ -277,9 +269,7 @@ function addInfoIcon(container, tooltipText) {
 
 function renderMainRowValue(value, sectionKey, columnIndex) {
   if (value === "Yes") {
-    // Caso especial para Virtual Tax Manager en la columna Core
     if (sectionKey === "virtualTaxManager" && columnIndex === 1) {
-      // Simplemente devolver el icono de check sin tooltip
       const template = document.getElementById("checkIcon");
       const clone = template.content.cloneNode(true);
       const container = clone.querySelector("div");
@@ -290,7 +280,6 @@ function renderMainRowValue(value, sectionKey, columnIndex) {
       );
       return clone;
     }
-    // Comportamiento normal para otros "Yes"
     const template = document.getElementById("checkIcon");
     const clone = template.content.cloneNode(true);
     const container = clone.querySelector("div");
@@ -302,9 +291,7 @@ function renderMainRowValue(value, sectionKey, columnIndex) {
     return clone;
   } else if (value === "No") {
     if (sectionKey === "taxFilings") {
-      // Solo para la fila "Tax Filings"
       if (columnIndex === 0 || columnIndex === 1 || columnIndex === 2) {
-        // Modificado para incluir tres columnas
         const container = document.createElement("div");
         container.className = "tooltip flex items-center justify-center";
 
@@ -315,9 +302,8 @@ function renderMainRowValue(value, sectionKey, columnIndex) {
         );
 
         const tooltip = document.createElement("span");
-        tooltip.className = "tooltiptext"; // Aseguramos que siempre tenga la clase
+        tooltip.className = "tooltiptext";
 
-        // Contenido específico según la columna
         if (columnIndex === 0) {
           tooltip.innerHTML =
             "$1,500 - $2,000<br>1 Federal Filing & 1 State Filing";
@@ -356,7 +342,6 @@ function renderMainRowValue(value, sectionKey, columnIndex) {
 }
 
 function renderValue(value, sectionKey, featureKey, columnIndex) {
-  // Añadimos parámetros
   if (value === "x") {
     const template = document.getElementById("xIcon");
     const clone = template.content.cloneNode(true);
@@ -376,7 +361,6 @@ function renderValue(value, sectionKey, featureKey, columnIndex) {
       "transition-transform",
       "hover:scale-125"
     );
-    // Añadir icono de información si hay tooltip
     if (
       (sectionKey === "virtualTaxManager" &&
         featureKey === "nexus" &&
@@ -422,11 +406,10 @@ function renderValue(value, sectionKey, featureKey, columnIndex) {
   } else if (
     sectionKey === "virtualTaxManager" &&
     featureKey === "salesTax" &&
-    (columnIndex === 2 || columnIndex === 3) && // Modificamos para incluir columna Pro y Enterprise
+    (columnIndex === 2 || columnIndex === 3) &&
     value === "<5 States Included"
   ) {
     const container = document.createElement("div");
-    // Añadir data-tooltip para identificar tooltips en mobile
     container.className =
       "tooltip inline-flex items-center justify-center gap-2";
     container.setAttribute("data-tooltip", "true");
@@ -462,13 +445,11 @@ function createTextElement(text, element = "span", className = "") {
 }
 
 function hasFeatures(section, sectionKey) {
-  // Añadimos sectionKey como parámetro
   if (sectionKey === "costRange") return false;
   return Object.keys(section.features).length > 0;
 }
 
 function toggleSection(sectionKey) {
-  // Si hay una sección animándose, esperar a que termine
   if (state.animatingSection) {
     return;
   }
@@ -476,7 +457,6 @@ function toggleSection(sectionKey) {
   state.animatingSection = sectionKey;
   state.openSections[sectionKey] = !state.openSections[sectionKey];
 
-  // Actualizar aria-expanded
   const button = document.querySelector(`[data-section="${sectionKey}"]`);
   if (button) {
     button.setAttribute("aria-expanded", state.openSections[sectionKey]);
@@ -484,13 +464,11 @@ function toggleSection(sectionKey) {
 
   renderTable();
 
-  // Limpiar animatingSection después de un tiempo
   setTimeout(() => {
     state.animatingSection = null;
   }, Object.keys(sections[sectionKey].features || {}).length * 100 + 300);
 }
 
-// Debouncing para optimizar renders
 function debounce(func, wait) {
   let timeout;
   return function executedFunction(...args) {
@@ -507,7 +485,6 @@ const debouncedRenderTable = debounce(() => {
   renderTable();
 }, 150);
 
-// Añadir esta función antes de renderTable
 function createSectionButton(section, sectionKey) {
   const button = document.createElement("button");
   button.className =
@@ -534,21 +511,18 @@ function renderFeatureRows(tableBody, sectionKey, section) {
       ([featureKey, feature], featureIndex) => {
         const featureRow = document.createElement("tr");
 
-        // Modificamos esta parte para que ahora aplique a Tax Filings
         const baseClasses = "feature-row border-t hover:bg-secondary-light/50";
         featureRow.className =
           sectionKey === "taxFilings" && featureKey === "taxFiling"
             ? `${baseClasses} tax-filing-row`
             : baseClasses;
 
-        // Aplicar animación solo si es la sección que se está abriendo actualmente
         if (sectionKey === state.animatingSection) {
           featureRow.style.animation = `fadeIn 0.3s ease-out ${
             featureIndex * 0.1
           }s forwards`;
           featureRow.style.opacity = "0";
         } else if (state.openSections[sectionKey]) {
-          // Si la sección ya estaba abierta, mantener visible
           featureRow.style.opacity = "1";
           featureRow.style.transform = "translateY(0)";
         }
@@ -557,7 +531,6 @@ function renderFeatureRows(tableBody, sectionKey, section) {
         nameCell.className =
           "p-4 pl-8 text-sm md:text-base lg:text-lg text-gray-600 sticky-col text-left bg-secondary-light";
 
-        // Modificamos la parte del tooltip para Tax Filings
         if (sectionKey === "taxFilings" && featureKey === "taxFiling") {
           const container = document.createElement("div");
           container.className = "tooltip flex items-center";
@@ -601,9 +574,7 @@ function renderTable() {
   const tableBody = document.getElementById("pricingTableBody");
   tableBody.innerHTML = "";
 
-  // Añadir manejador de eventos global para tooltips
   document.addEventListener("click", function (e) {
-    // Cerrar todos los tooltips activos
     document
       .querySelectorAll('.tooltip[data-active="true"]')
       .forEach((tooltip) => {
@@ -612,7 +583,6 @@ function renderTable() {
         }
       });
 
-    // Si el click fue en un tooltip, togglear su estado
     if (e.target.closest(".tooltip")) {
       const tooltip = e.target.closest(".tooltip");
       const wasActive = tooltip.getAttribute("data-active") === "true";
@@ -621,20 +591,16 @@ function renderTable() {
   });
 
   Object.entries(sections).forEach(([sectionKey, section], index) => {
-    // Main section row - añadimos cursor-pointer aquí
     const mainRow = document.createElement("tr");
 
-    // Añadir el data-section attribute a la fila
     mainRow.setAttribute("data-section", sectionKey);
 
     mainRow.className = `border-t hover:bg-secondary-light/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer ${
       sectionKey === "rightForYou" ? "border-t-2 border-primary/20" : ""
     }`;
 
-    // Asignar evento onclick a toda la fila
     mainRow.onclick = () => toggleSection(sectionKey);
 
-    // Section name cell
     const nameCell = document.createElement("td");
     nameCell.className = "p-0 sticky-col cursor-pointer";
 
@@ -650,17 +616,13 @@ function renderTable() {
         ["rightForYou", "costRange"].includes(sectionKey) ? "text-gray-900" : ""
       }`;
 
-      // Modificar específicamente la sección de Cost Range
       if (sectionKey === "costRange") {
-        // Crear un contenedor para ambos textos
         const container = document.createElement("div");
         container.className = "flex flex-col";
 
-        // Texto principal
         const mainText = document.createElement("span");
         mainText.textContent = section.name;
 
-        // Texto en itálica
         const italicText = document.createElement("span");
         italicText.textContent = "(starting at)";
         italicText.className = "italic text-sm text-gray-600 mt-1";
@@ -685,7 +647,6 @@ function renderTable() {
       nameSpan.className =
         "font-semibold px-4 text-sm md:text-base lg:text-lg text-left w-full block p-4";
 
-      // Modificar específicamente la sección de Cost Range cuando no tiene features
       if (sectionKey === "costRange") {
         const container = document.createElement("div");
         container.className = "flex flex-col";
@@ -709,9 +670,7 @@ function renderTable() {
 
     mainRow.appendChild(nameCell);
 
-    // Main row values
     section.mainRow.forEach((value, columnIndex) => {
-      // Añadimos columnIndex
       const cell = document.createElement("td");
       cell.className = "p-6  text-center mobile-col";
 
@@ -719,14 +678,13 @@ function renderTable() {
       valueSpan.className = ["rightForYou", "costRange"].includes(sectionKey)
         ? "font-semibold text-gray-800"
         : "";
-      valueSpan.appendChild(renderMainRowValue(value, sectionKey, columnIndex)); // Pasamos columnIndex
+      valueSpan.appendChild(renderMainRowValue(value, sectionKey, columnIndex));
       cell.appendChild(valueSpan);
       mainRow.appendChild(cell);
     });
 
     tableBody.appendChild(mainRow);
 
-    // Feature rows
     renderFeatureRows(tableBody, sectionKey, section);
   });
 
@@ -734,7 +692,6 @@ function renderTable() {
   lucide.createIcons();
 }
 
-// Initial render
 document.addEventListener("DOMContentLoaded", () => {
   renderTable();
 });
