@@ -46,7 +46,8 @@
       .sticky-col {
         position: sticky;
         left: 0;
-        background-color: #f6fff5;
+        background-color: #fcf1e1;
+        max-width: 350px;
       }
 
       .sticky-col:hover {
@@ -76,13 +77,11 @@
         .sticky-col {
           position: sticky;
           left: 0;
-          background-color: #f6fff5;
           z-index: 50 !important;
         }
 
         .mobile-col {
-          width: 90px !important;
-          min-width: 90px !important;
+          min-width: 140px !important;
           transition: background-color 0.2s ease;
         }
 
@@ -144,7 +143,7 @@
           min-width: 300px !important;
         }
         .mobile-col {
-          min-width: 150px !important; /* Asegurar ancho mínimo consistente */
+          min-width: 170px !important; /* Asegurar ancho mínimo consistente */
         }
       }
 
@@ -175,12 +174,13 @@
         align-items: center; /* Centrar verticalmente */
         gap: 4px; /* Espacio entre texto e icono */
         justify-content: center; /* Centrar horizontalmente */
+        z-index: 101 !important;
       }
 
       .tooltip .tooltiptext {
         visibility: hidden;
         width: max-content;
-        max-width: 400px; /* Añadir un ancho máximo */
+        max-width: 200px; /* Añadir un ancho máximo */
         white-space: pre-line; /* Respetar saltos de línea */
         line-height: 1.4; /* Mejorar espaciado entre líneas */
         text-align: left; /* Alinear texto a la izquierda */
@@ -211,7 +211,7 @@
         border-width: 5px;
         border-style: solid;
         border-color: #333 transparent transparent transparent;
-        z-index: 2 !important;
+        z-index: 101 !important;
       }
 
       .tooltip:hover .tooltiptext {
@@ -264,12 +264,14 @@
 
       /* Estilo específico para el tooltip de Estimated Tax Filing Cost */
       .feature-row[data-feature="taxFiling"] .tooltip .tooltiptext {
+        width: 180px;
+        height: 70px;
         z-index: 1000 !important; /* Valor más alto que los contenedores padres */
       }
 
       /* Modificar el estilo específico para el tooltip de Estimated Tax Filing Cost */
       .feature-row[data-feature="taxFiling"] .tooltip {
-        position: relative;
+        position: relative !important;
         z-index: 1001 !important; /* Asegurarnos que el contenedor también tenga z-index alto */
       }
 
@@ -281,7 +283,7 @@
 
       /* Asegurar que el tooltip permanezca visible durante y después de la animación */
       .feature-row[data-feature="taxFiling"] {
-        position: relative;
+        position: relative !important;
         z-index: 1000 !important;
       }
 
@@ -347,6 +349,44 @@
       .dropdown-icon.active {
         transform: rotate(180deg);
       }
+
+      /* Modificar el hover de las filas (incluyendo las del dropdown) */
+      tr:hover td,
+      .feature-row:hover td {
+        background-color: #f5fdff !important;
+      }
+
+      /* Asegurar que el hover de la columna fija mantenga el mismo comportamiento en dropdowns */
+      .sticky-col:hover,
+      .feature-row .sticky-col:hover {
+        background: #f5fdff !important;
+      }
+
+      /* Ajustar el z-index durante el hover para mantener la columna fija visible en dropdowns */
+      tr:hover .sticky-col,
+      .feature-row:hover .sticky-col {
+        z-index: 51 !important;
+      }
+
+      /* Asegurar que las filas del dropdown mantengan el comportamiento */
+      .feature-row td {
+        transition: background-color 0.2s ease;
+      }
+
+      /* Modificar el hover de las filas */
+      tr:hover td {
+        background-color: #f5fdff !important;
+      }
+
+      /* Asegurar que el hover de la columna fija mantenga el mismo comportamiento */
+      .sticky-col:hover {
+        background: #f5fdff !important;
+      }
+
+      /* Ajustar el z-index durante el hover para mantener la columna fija visible */
+      tr:hover .sticky-col {
+        z-index: 51 !important;
+      }
     </style>
   </head>
   <body class="p-4">
@@ -355,7 +395,7 @@
         <h1
           class="text-4xl md:text-5xl font-bold py-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
         >
-          Our Pricing Plans
+          The GrowthLab Suite
         </h1>
         <p class="text-gray-600 text-lg md:text-xl">
           Choose the perfect plan for your business needs
@@ -363,7 +403,7 @@
       </div>
 
       <div
-        class="bg-white rounded-xl shadow-xl shadow-primary border border-gray-200"
+        class="bg-white mb-40 rounded-xl shadow-xl shadow-primary border border-gray-200"
       >
         <div class="table-container">
           <div class="table-scroll">

@@ -8,7 +8,6 @@ const state = {
     virtualTaxManager: false,
     hrPas: false,
     rightForYou: false,
-    costRange: false,
   },
   animatingSection: null,
 };
@@ -121,7 +120,17 @@ const sections = {
   taxFilings: {
     name: "Tax Filings",
     mainRow: ["No", "No", "No", "Yes"],
-    features: {},
+    features: {
+      taxFiling: {
+        name: "Estimated Tax Filing Cost",
+        values: [
+          "$1,500 - $2,000",
+          "$2,000 - $3,000",
+          "$2,000 - $5,000",
+          "Included",
+        ],
+      },
+    },
   },
   virtualTaxManager: {
     name: "Virtual Tax Manager",
@@ -163,12 +172,12 @@ const sections = {
     },
   },
   hrPas: {
-    name: "HR / PAS",
+    name: "HR / People Advisory Services",
     mainRow: [
       "No",
-      "Essentials Compliance",
-      "Advanced Compliance",
-      "Advanced Compliance & Strategy",
+      "Yes", // Cambiado de "Essentials Compliance"
+      "Yes", // Cambiado de "Advanced Compliance"
+      "Yes", // Cambiado de "Advanced Compliance & Strategy"
     ],
     features: {
       review: {
@@ -226,11 +235,11 @@ const sections = {
     },
   },
   rightForYou: {
-    name: "Which is right for you?",
+    name: "Find Your Perfect Fit",
     mainRow: ["", "", "", ""],
     features: {
       persona: {
-        name: "Customer Persona",
+        name: "Growth Stage",
         values: ["PreSeed", "Seed", "Series A", "Established"],
       },
       revenue: {
@@ -249,24 +258,9 @@ const sections = {
     },
   },
   costRange: {
-    name: "Cost range",
-    mainRow: [
-      "$1,500 - $2,500 / month",
-      "$3,500 - $5,000 / month",
-      "$5,000 - $10,000 / month",
-      "Contact Us",
-    ],
-    features: {
-      taxFiling: {
-        name: "Estimated Tax Filing Cost",
-        values: [
-          "$1,500 - $2,000",
-          "$2,000 - $3,000",
-          "$2,000 - $5,000",
-          "Included",
-        ],
-      },
-    },
+    name: 'Cost Range "Pricing"',
+    mainRow: ["$2,500 / mo", "$3,500 / mo", "$5,000 / mo", "Contact Us"],
+    features: {},
   },
 };
 
@@ -285,37 +279,16 @@ function renderMainRowValue(value, sectionKey, columnIndex) {
   if (value === "Yes") {
     // Caso especial para Virtual Tax Manager en la columna Core
     if (sectionKey === "virtualTaxManager" && columnIndex === 1) {
-      const container = document.createElement("div");
-      container.className = "tooltip";
-
-      const iconContainer = document
-        .getElementById("checkIcon")
-        .content.cloneNode(true);
-      const checkDiv = iconContainer.querySelector("div");
-      checkDiv.classList.add(
+      // Simplemente devolver el icono de check sin tooltip
+      const template = document.getElementById("checkIcon");
+      const clone = template.content.cloneNode(true);
+      const container = clone.querySelector("div");
+      container.classList.add(
         "transform",
         "transition-transform",
         "hover:scale-110"
       );
-
-      const tooltip = document.createElement("span");
-      tooltip.className = "tooltiptext text-left whitespace-pre-line";
-      tooltip.innerHTML = `GrowthLab Tax Team will do a year-end review that will consist of:
-
-Business Review
-
-Review of Financial Statements with Customer
-
-If needed, compute projections
-- Discussion of Estimated Tax Payment
-- Potential year end planning to reduce potential Exposure
-- Nexus discussion (if applicable, if nexus study is required separate charge)
-- Meeting with client prior to Dec 15th.`;
-
-      container.appendChild(checkDiv);
-      container.appendChild(tooltip);
-      addInfoIcon(container); // Añadir icono de información
-      return container;
+      return clone;
     }
     // Comportamiento normal para otros "Yes"
     const template = document.getElementById("checkIcon");
@@ -330,8 +303,8 @@ If needed, compute projections
   } else if (value === "No") {
     if (sectionKey === "taxFilings") {
       // Solo para la fila "Tax Filings"
-      if (columnIndex === 0 || columnIndex === 1) {
-        // Modificado para incluir ambas columnas
+      if (columnIndex === 0 || columnIndex === 1 || columnIndex === 2) {
+        // Modificado para incluir tres columnas
         const container = document.createElement("div");
         container.className = "tooltip flex items-center justify-center";
 
@@ -351,6 +324,8 @@ If needed, compute projections
         } else if (columnIndex === 1) {
           tooltip.innerHTML =
             "$2,000 - $3,000<br>1 Federal Filing & < 5 State Filings";
+        } else if (columnIndex === 2) {
+          tooltip.innerHTML = "$2,500+<br>1 Federal Filing & 5+ State Filings";
         }
 
         container.appendChild(span);
@@ -368,7 +343,7 @@ If needed, compute projections
     const link = document.createElement("a");
     link.href = "https://www.growthlabfinancial.com/calendar";
     link.className =
-      "bg-primary hover:bg-secondary text-white lg:px-8 md:px-2 px-1 py-3 rounded-xl hover:shadow-lg active:scale-95 text-xs md:text-sm lg:text-lg font-medium transition-all";
+      "bg-primary hover:bg-secondary text-white xl:px-6 lg:px-4 md:px-2 px-1 py-3 rounded-xl hover:shadow-lg active:scale-95 text-xs md:text-sm xl:text-base font-medium transition-all";
     link.textContent = value;
     link.target = "_blank";
     return link;
@@ -376,7 +351,7 @@ If needed, compute projections
   return createTextElement(
     value,
     "span",
-    "font-medium text-gray-700 text-sm md:text-base lg:text-lg transition hover:text-primary"
+    "font-medium text-gray-700 text-sm md:text-base lg:text-lg transition "
   );
 }
 
@@ -433,7 +408,7 @@ function renderValue(value, sectionKey, featureKey, columnIndex) {
     const span = createTextElement(
       value,
       "span",
-      "text-sm md:text-base lg:text-lg transition hover:text-primary"
+      "text-sm md:text-base lg:text-lg transition "
     );
 
     const tooltip = document.createElement("span");
@@ -459,13 +434,13 @@ function renderValue(value, sectionKey, featureKey, columnIndex) {
     const span = createTextElement(
       value,
       "span",
-      "text-sm md:text-base lg:text-lg transition hover:text-primary"
+      "text-sm md:text-base lg:text-lg transition "
     );
 
     const tooltip = document.createElement("span");
     tooltip.className = "tooltiptext";
     tooltip.textContent =
-      "Anything over 4 or 5, we will help manage the relationship with Avalara";
+      "Over 4 state sales tax filings will be managed via Avalara";
 
     container.appendChild(span);
     container.appendChild(tooltip);
@@ -475,7 +450,7 @@ function renderValue(value, sectionKey, featureKey, columnIndex) {
   return createTextElement(
     value,
     "span",
-    "text-sm md:text-base lg:text-lg transition hover:text-primary"
+    "text-sm md:text-base lg:text-lg transition "
   );
 }
 
@@ -486,7 +461,9 @@ function createTextElement(text, element = "span", className = "") {
   return el;
 }
 
-function hasFeatures(section) {
+function hasFeatures(section, sectionKey) {
+  // Añadimos sectionKey como parámetro
+  if (sectionKey === "costRange") return false;
   return Object.keys(section.features).length > 0;
 }
 
@@ -552,15 +529,15 @@ function createSectionButton(section, sectionKey) {
 }
 
 function renderFeatureRows(tableBody, sectionKey, section) {
-  if (state.openSections[sectionKey] && hasFeatures(section)) {
+  if (state.openSections[sectionKey] && hasFeatures(section, sectionKey)) {
     Object.entries(section.features).forEach(
       ([featureKey, feature], featureIndex) => {
         const featureRow = document.createElement("tr");
 
-        // Añadir clase especial si es la fila de taxFiling en costRange
+        // Modificamos esta parte para que ahora aplique a Tax Filings
         const baseClasses = "feature-row border-t hover:bg-secondary-light/50";
         featureRow.className =
-          sectionKey === "costRange" && featureKey === "taxFiling"
+          sectionKey === "taxFilings" && featureKey === "taxFiling"
             ? `${baseClasses} tax-filing-row`
             : baseClasses;
 
@@ -580,18 +557,18 @@ function renderFeatureRows(tableBody, sectionKey, section) {
         nameCell.className =
           "p-4 pl-8 text-sm md:text-base lg:text-lg text-gray-600 sticky-col text-left bg-secondary-light";
 
-        // Agregar tooltip específico para "Estimated Tax Filing Cost"
-        if (sectionKey === "costRange" && featureKey === "taxFiling") {
+        // Modificamos la parte del tooltip para Tax Filings
+        if (sectionKey === "taxFilings" && featureKey === "taxFiling") {
           const container = document.createElement("div");
           container.className = "tooltip flex items-center";
-          featureRow.setAttribute("data-feature", "taxFiling"); // Añadir este atributo
+          featureRow.setAttribute("data-feature", "taxFiling");
 
           const nameSpan = document.createElement("span");
           nameSpan.textContent = feature.name;
 
           const tooltip = document.createElement("span");
           tooltip.className = "tooltiptext";
-          tooltip.style.zIndex = "1002"; // Forzar z-index alto
+          tooltip.style.zIndex = "1002";
           tooltip.innerHTML = "*Estimated<br>*will be engaged separately";
 
           container.appendChild(nameSpan);
@@ -644,18 +621,20 @@ function renderTable() {
   });
 
   Object.entries(sections).forEach(([sectionKey, section], index) => {
-    // Main section row
+    // Main section row - añadimos cursor-pointer aquí
     const mainRow = document.createElement("tr");
-    mainRow.className = `border-t hover:bg-secondary-light/50 transition-all duration-300 hover:scale-[1.01] ${
+    mainRow.className = `border-t hover:bg-secondary-light/50 transition-all duration-300 hover:scale-[1.01] cursor-pointer ${
       sectionKey === "rightForYou" ? "border-t-2 border-primary/20" : ""
     }`;
+
+    // Asignar evento onclick a toda la fila
+    mainRow.onclick = () => toggleSection(sectionKey);
 
     // Section name cell
     const nameCell = document.createElement("td");
     nameCell.className = "p-0 sticky-col cursor-pointer";
-    nameCell.onclick = () => toggleSection(sectionKey);
 
-    if (hasFeatures(section)) {
+    if (hasFeatures(section, sectionKey)) {
       const button = createSectionButton(section, sectionKey);
       button.onclick = (e) => {
         e.stopPropagation();
@@ -666,7 +645,28 @@ function renderTable() {
       nameSpan.className = `font-semibold text-sm md:text-base lg:text-lg text-left flex-1 ${
         ["rightForYou", "costRange"].includes(sectionKey) ? "text-gray-900" : ""
       }`;
-      nameSpan.textContent = section.name;
+
+      // Modificar específicamente la sección de Cost Range
+      if (sectionKey === "costRange") {
+        // Crear un contenedor para ambos textos
+        const container = document.createElement("div");
+        container.className = "flex flex-col";
+
+        // Texto principal
+        const mainText = document.createElement("span");
+        mainText.textContent = section.name;
+
+        // Texto en itálica
+        const italicText = document.createElement("span");
+        italicText.textContent = "(starting at)";
+        italicText.className = "italic text-sm text-gray-600 mt-1";
+
+        container.appendChild(mainText);
+        container.appendChild(italicText);
+        nameSpan.appendChild(container);
+      } else {
+        nameSpan.textContent = section.name;
+      }
 
       const iconTemplate = state.openSections[sectionKey]
         ? document.getElementById("chevronUpIcon")
@@ -680,7 +680,26 @@ function renderTable() {
       const nameSpan = document.createElement("span");
       nameSpan.className =
         "font-semibold px-4 text-sm md:text-base lg:text-lg text-left w-full block p-4";
-      nameSpan.textContent = section.name;
+
+      // Modificar específicamente la sección de Cost Range cuando no tiene features
+      if (sectionKey === "costRange") {
+        const container = document.createElement("div");
+        container.className = "flex flex-col";
+
+        const mainText = document.createElement("span");
+        mainText.textContent = section.name;
+
+        const italicText = document.createElement("span");
+        italicText.textContent = "(starting at)";
+        italicText.className = "italic text-sm text-gray-600 mt-1";
+
+        container.appendChild(mainText);
+        container.appendChild(italicText);
+        nameSpan.appendChild(container);
+      } else {
+        nameSpan.textContent = section.name;
+      }
+
       nameCell.appendChild(nameSpan);
     }
 
